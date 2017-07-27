@@ -1,0 +1,114 @@
+kind: MLApp
+workspace: test
+metadata:
+  name: styles-transfer-v2
+spec:
+  tasks:
+  - name: train-model
+    resources:
+    - name: worker
+      replicas: 1
+      restartPolicy: Never
+      maxRestartCount: 0
+      allowFail: true
+      images:
+        gpu: tensorflow/tensorflow:1.2.0
+        cpu: tensorflow/tensorflow:1.2.0-gpu
+      command: python
+      args: --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
+                --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
+                --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/data/imagenet-vgg-verydeep-19.mat
+                --epochs=3 --style-weight=200 --limit_train=2000 --task_index $TASK_ID --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
+      workdir: "$SRC_DIR"
+      resources:
+        accelerators:
+          gpu: 1
+          dedicated_gpu: true
+        requests:
+          cpu: 100m
+          memory: 1Gi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      port: 9000
+      volumes:
+      - name: lib
+      - name: training
+      - name: src
+    - name: ps
+      replicas: 1
+      restartPolicy: Never
+      maxRestartCount: 0
+      images:
+        gpu: tensorflow/tensorflow:1.2.0
+        cpu: tensorflow/tensorflow:1.2.0-gpu
+      command: python
+      args: --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
+                --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
+                --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/data/imagenet-vgg-verydeep-19.mat
+                --epochs=3 --style-weight=200 --limit_train=2000 --task_index $TASK_ID --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
+      workdir: "$SRC_DIR"
+      port: 9000
+      volumes:
+      - name: lib
+      - name: training
+      - name: src
+  uix:
+  - name: jupyter
+    displayName: Jupyter
+    images:
+      gpu: "kuberlab/mlboard-jupyter-gpu:latest"
+      cpu: "kuberlab/mlboard-jupyter:latest"
+    resources:
+      requests:
+        cpu: 100m
+        memory: 125Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    ports:
+    - port: 8888
+      targetPort: 8888
+      protocol: TCP
+      name: http
+    volumes:
+    - name: lib
+    - name: src
+  - name: tensorboard
+    displayName: Tensorboard
+    images:
+      cpu: "lsheiba/tensorflow-ls-devel"
+    ports:
+    - port: 6006
+      targetPort: 6006
+      protocol: TCP
+      name: http
+    volumes:
+    - name: training
+  volumes:
+  - isLibDir: false
+    isTrainLogDir: true
+    mountPath: /training
+    name: training
+    clusterStorage: {{ .storage }}
+    subPath: training
+  - gitRepo:
+      repository: https://github.com/dreyk/fast-style-transfer
+    isLibDir: false
+    isTrainLogDir: false
+    mountPath: /src
+    name: src
+    subPath: "fast-style-transfer"
+  - isLibDir: true
+    isTrainLogDir: false
+    mountPath: /workspace/lib
+    name: lib
+    clusterStorage: {{ .storage }}
+    subPath: lib
+  - hostPath:
+      path: /fast-data
+    isLibDir: false
+    isTrainLogDir: false
+    mountPath: /workspace/data
+    name: data
+    subPath: ""
