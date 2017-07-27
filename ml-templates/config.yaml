@@ -3,6 +3,9 @@ workspace: test
 metadata:
   name: styles-transfer-v2
 spec:
+  pythonPackages:
+  - pillow
+  - scipy
   tasks:
   - name: train-model
     resources:
