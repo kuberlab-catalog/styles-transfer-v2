@@ -15,13 +15,13 @@ spec:
       maxRestartCount: 0
       allowFail: true
       images:
-        gpu: tensorflow/tensorflow:1.2.0
-        cpu: tensorflow/tensorflow:1.2.0-gpu
-      command: python
-      args: --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
-                --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
-                --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/data/imagenet-vgg-verydeep-19.mat
-                --epochs=3 --style-weight=200 --limit_train=2000 --task_index $TASK_ID --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
+        gpu: tensorflow/tensorflow:1.2.0-gpu
+        cpu: tensorflow/tensorflow:1.2.0
+      command: echo $TRAINING_DIR; echo $DATA_DIR; python
+      args: style.py --job_name=worker --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
+                        --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
+                        --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat
+                        --epochs=3 --style-weight=200 --limit_train=2000 --task_index $TASK_ID --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -33,29 +33,31 @@ spec:
         limits:
           cpu: 1000m
           memory: 1Gi
-      port: 9000
+      port: 2222
       volumes:
       - name: lib
       - name: training
       - name: src
+      - name: data
     - name: ps
       replicas: 1
       restartPolicy: Never
       maxRestartCount: 0
       images:
-        gpu: tensorflow/tensorflow:1.2.0
-        cpu: tensorflow/tensorflow:1.2.0-gpu
-      command: python
-      args: --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
-                --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
-                --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/data/imagenet-vgg-verydeep-19.mat
-                --epochs=3 --style-weight=200 --limit_train=2000 --task_index $TASK_ID --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
+        gpu: tensorflow/tensorflow:1.2.0-gpu
+        cpu: tensorflow/tensorflow:1.2.0
+      command: echo $TRAINING_DIR; echo $DATA_DIR; python
+      args: style.py --job_name=ps --num_gpus=0 --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
+                        --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
+                        --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat
+                        --epochs=3 --style-weight=200 --limit_train=2000 --task_index $TASK_ID --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
       workdir: "$SRC_DIR"
-      port: 9000
+      port: 2222
       volumes:
       - name: lib
       - name: training
       - name: src
+      - name: data
   uix:
   - name: jupyter
     displayName: Jupyter
