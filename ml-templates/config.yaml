@@ -1,7 +1,8 @@
 kind: MLApp
-workspace: test
 metadata:
   name: styles-transfer-v2
+  labels:
+    test: test
 spec:
   pythonPackages:
   - pillow
