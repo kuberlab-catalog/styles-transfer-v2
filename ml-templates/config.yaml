@@ -79,7 +79,13 @@ spec:
       name: http
     volumes:
     - name: lib
+      mountPath: /notebooks/lib
     - name: src
+      mountPath: /notebooks/src
+    - name: training
+      mountPath: /notebooks/training
+    - name: data
+      mountPath: /notebooks/data
   - name: tensorboard
     displayName: Tensorboard
     images:
