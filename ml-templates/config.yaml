@@ -110,7 +110,7 @@ spec:
     isTrainLogDir: false
     mountPath: /src
     name: src
-    subPath: "fast-style-transfer"
+    subPath: "/fast-style-transfer"
   - isLibDir: true
     isTrainLogDir: false
     mountPath: /workspace/lib
