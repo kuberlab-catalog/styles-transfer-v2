@@ -88,6 +88,8 @@ spec:
       mountPath: /notebooks/data
   - name: tensorboard
     displayName: Tensorboard
+    command: "tensorboard"
+    args: "--logdir=$TRAINING_DIR"
     images:
       cpu: "lsheiba/tensorflow-ls-devel"
     ports:
