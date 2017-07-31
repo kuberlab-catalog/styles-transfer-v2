@@ -4,9 +4,12 @@ metadata:
   labels:
     test: test
 spec:
-  pythonPackages:
-  - pillow
-  - scipy
+  package_manager: pip2
+  packages:
+    names:
+    - pillow
+    - scipy
+    manager: pip2
   tasks:
   - name: train-model
     resources:
