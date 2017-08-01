@@ -6,10 +6,10 @@ metadata:
 spec:
   package_manager: pip2
   packages:
-    names:
-    - pillow
-    - scipy
-    manager: pip2
+    - names:
+      - pillow
+      - scipy
+      manager: pip2
   tasks:
   - name: train-model
     resources:
