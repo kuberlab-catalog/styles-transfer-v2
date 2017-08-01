@@ -22,7 +22,7 @@ spec:
         gpu: tensorflow/tensorflow:1.2.0-gpu
         cpu: tensorflow/tensorflow:1.2.0
       command: echo $TRAINING_DIR; echo $DATA_DIR; python
-      args: style.py --job_name=worker --num_gpus=$GPU_COUNT --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
+      args: style.py --job_name=worker --num_gpus=$GPU_COUNT --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=examples/content/chicago.jpg
                         --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
                         --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat
                         --epochs=3 --style-weight=200 --limit_train=2000 --task_index $REPLICA_INDEX --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
@@ -51,7 +51,7 @@ spec:
         gpu: tensorflow/tensorflow:1.2.0-gpu
         cpu: tensorflow/tensorflow:1.2.0
       command: echo $TRAINING_DIR; echo $DATA_DIR; python
-      args: style.py --job_name=ps --num_gpus=$GPU_COUNT --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR --test=examples/content/chicago.jpg
+      args: style.py --job_name=ps --num_gpus=$GPU_COUNT --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=examples/content/chicago.jpg
                         --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
                         --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat
                         --epochs=3 --style-weight=200 --limit_train=2000 --task_index $REPLICA_INDEX --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
@@ -102,6 +102,32 @@ spec:
       name: http
     volumes:
     - name: training
+  serving:
+  - name: serving
+    displayName: TF Serving
+    images:
+      gpu: "kuberlab/tensorflow-serving:latest-gpu"
+      cpu: "kuberlab/tensorflow-serving:latest"
+    command: tensorflow_model_server
+    args: "--port=9000 --model_name=$TASK_NAME --model_base_path=$TRAINING_DIR/$BUILD_ID"
+    resources:
+      accelerators:
+        gpu: 1
+        dedicated_gpu: true
+      requests:
+        cpu: 100m
+        memory: 125Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
+      name: http
+    volumes:
+    - name: training
+      mountPath: /training
   volumes:
   - isLibDir: false
     isTrainLogDir: true
