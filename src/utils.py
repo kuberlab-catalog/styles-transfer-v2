@@ -37,9 +37,6 @@ def list_files(in_path):
 def read_image(filename_queue):
     image_reader = tf.WholeFileReader()
     path, image_file = image_reader.read(filename_queue)
-    def read_image(filename_queue, shuffle):
-        image_reader = tf.WholeFileReader()
-    path, image_file = image_reader.read(filename_queue)
     image = tf.image.decode_jpeg(image_file, 3)
     image = tf.image.resize_images(image,(256,256,3))
     image = tf.to_float(image, name='ToFloat')
