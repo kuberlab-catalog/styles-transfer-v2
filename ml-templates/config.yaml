@@ -11,7 +11,7 @@ spec:
       - scipy
       manager: pip2
   tasks:
- - name: prepare-data
+  - name: prepare-data
     resources:
     - name: upload
       replicas: 1
