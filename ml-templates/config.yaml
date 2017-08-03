@@ -11,7 +11,20 @@ spec:
       - scipy
       manager: pip2
   tasks:
-  - name: train-model
+ - name: prepare-data
+    resources:
+    - name: upload
+      replicas: 1
+      restartPolicy: Never
+      maxRestartCount: 1
+      allowFail: true
+      images:
+        cpu: busybox
+      command: wget http://www.vlfeat.org/matconvnet/models/beta16/imagenet-vgg-verydeep-19.mat;rm -rf train2014.zip;wget http://msvocds.blob.core.windows.net/coco2014/train2014.zip; unzip train2014.zip;rm -rf train2014.zip;echo 'DONE'
+      workdir: "$DATA_DIR"
+      volumes:
+      - name: data
+  - name: train
     resources:
     - name: worker
       replicas: 1
@@ -22,10 +35,7 @@ spec:
         gpu: tensorflow/tensorflow:1.2.0-gpu
         cpu: tensorflow/tensorflow:1.2.0
       command: echo $TRAINING_DIR; echo $DATA_DIR; python
-      args: style.py --job_name=worker --num_gpus=$GPU_COUNT --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=examples/content/chicago.jpg
-                        --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
-                        --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat
-                        --epochs=3 --style-weight=200 --limit_train=2000 --task_index $REPLICA_INDEX --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
+      args: style.py --job_name=worker --style=style/udnie.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=content/chicago.jpg  --content-weight=1.5e1  --batch-size=10 --train-path=$DATA_DIR/train2014/*.jpg --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat --epochs=3 --style-weight=200 --limit_train=2000 --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
       workdir: "$SRC_DIR"
       resources:
         accelerators:
@@ -36,7 +46,7 @@ spec:
           memory: 1Gi
         limits:
           cpu: 1000m
-          memory: 1Gi
+          memory: 4Gi
       port: 2222
       volumes:
       - name: lib
@@ -51,17 +61,12 @@ spec:
         gpu: tensorflow/tensorflow:1.2.0-gpu
         cpu: tensorflow/tensorflow:1.2.0
       command: echo $TRAINING_DIR; echo $DATA_DIR; python
-      args: style.py --job_name=ps --num_gpus=$GPU_COUNT --style=examples/style/udnie.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=examples/content/chicago.jpg
-                        --test-dir=$TRAINING_DIR/tests --content-weight=1.5e1 --checkpoint-iterations=1000 --batch-size=10
-                        --train-path=$DATA_DIR/train2014 --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat
-                        --epochs=3 --style-weight=200 --limit_train=2000 --task_index $REPLICA_INDEX --ps_hosts $PS_NODES --worker_hosts $WORKER_NODES
+      args: style.py --job_name=ps --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
       workdir: "$SRC_DIR"
       port: 2222
       volumes:
       - name: lib
-      - name: training
       - name: src
-      - name: data
   uix:
   - name: jupyter
     displayName: Jupyter
@@ -136,22 +141,21 @@ spec:
     clusterStorage: {{ .storage }}
     subPath: training
   - gitRepo:
-      repository: https://github.com/dreyk/fast-style-transfer
+      repository: https://github.com/kuberlab-catalog/styles-transfer-v2
     isLibDir: false
     isTrainLogDir: false
     mountPath: /src
     name: src
-    subPath: "/fast-style-transfer"
+    subPath: "/styles-transfer-v2/src"
   - isLibDir: true
     isTrainLogDir: false
     mountPath: /workspace/lib
     name: lib
     clusterStorage: {{ .storage }}
     subPath: lib
-  - hostPath:
-      path: /fast-data
-    isLibDir: false
+  - isLibDir: false
     isTrainLogDir: false
-    mountPath: /workspace/data
+    mountPath: /data
     name: data
-    subPath: ""
+    clusterStorage: {{ .storage }}
+    subPath: /data/styles-transfer
