@@ -54,13 +54,13 @@ def styles_data(file_pattern,batch_size,limit, shuffle):
 
     # Mini batch
     num_preprocess_threads = 4
-    min_queue_examples = 10000
+    min_queue_examples = 10
     if shuffle:
         images = tf.train.shuffle_batch(
             image,
             batch_size=batch_size,
             num_threads=num_preprocess_threads,
-            capacity=min_queue_examples + 3 * batch_size,
+            capacity=min_queue_examples + 2 * batch_size,
             min_after_dequeue=min_queue_examples)
     else:
         images = tf.train.batch(
