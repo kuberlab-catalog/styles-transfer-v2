@@ -102,7 +102,6 @@ def check_opts(opts):
     if not os.path.exists(opts.checkpoint_dir):
         os.makedirs(opts.checkpoint_dir)
     exists(opts.style, "style path not found!")
-    exists(opts.train_path, "train path not found!")
     exists(opts.vgg_path, "vgg network data not found!")
     assert opts.epochs > 0
     assert opts.batch_size > 0
