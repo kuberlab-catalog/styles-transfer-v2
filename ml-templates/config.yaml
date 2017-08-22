@@ -158,4 +158,4 @@ spec:
     mountPath: /data
     name: data
     clusterStorage: {{ .storage }}
-    subPath: /data/styles-transfer
+    subPath: /shared/data/styles-transfer
