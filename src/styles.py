@@ -99,8 +99,9 @@ def build_parser():
     return parser
 
 def check_opts(opts):
-    if not os.path.exists(opts.checkpoint_dir):
-        os.makedirs(opts.checkpoint_dir)
+    if options.task_index==0
+        if not os.path.exists(opts.checkpoint_dir):
+            os.makedirs(opts.checkpoint_dir)
     exists(opts.style, "style path not found!")
     exists(opts.vgg_path, "vgg network data not found!")
     assert opts.epochs > 0
