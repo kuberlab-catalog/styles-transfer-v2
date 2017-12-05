@@ -99,7 +99,7 @@ def build_parser():
     return parser
 
 def check_opts(opts):
-    if options.task_index==0
+    if options.task_index==0:
         if not os.path.exists(opts.checkpoint_dir):
             os.makedirs(opts.checkpoint_dir)
     exists(opts.style, "style path not found!")
