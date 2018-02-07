@@ -239,8 +239,9 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
     tf.summary.image('result', result,max_outputs=1)
 
     # overall loss
-    train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss,global_step=global_step)
+    train_step = tf.train.AdamOptimizer(learning_rate*hvd.size())
     train_step = hvd.DistributedOptimizer(train_step)
+    train_step = train_step.minimize(loss,global_step=global_step)
     all_summary = tf.summary.merge_all()
 
 
