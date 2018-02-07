@@ -44,11 +44,15 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
 
     time_begin = time.time()
     print("Training begins @ %f" % time_begin)
+    sess_config = tf.ConfigProto(
+        allow_soft_placement=True,
+        log_device_placement=False,
+        device_filters=["/job:ps", "/job:worker/task:%d" % task_index])
     with tf.device(
             tf.train.replica_device_setter(
                 worker_device=worker_device,
                 ps_device="/job:ps/cpu:0",
-                cluster=cluster)),tf.Session():
+                cluster=cluster)),tf.Session(server.target,config=sess_config) as sess:
         dataset = styles_data(file_pattern,batch_size,limit,True)
         num_examples = dataset['size']
         num_samples = num_examples / batch_size
@@ -109,10 +113,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
 
         all_summary = tf.summary.merge_all()
 
-        sess_config = tf.ConfigProto(
-            allow_soft_placement=True,
-            log_device_placement=False,
-            device_filters=["/job:ps", "/job:worker/task:%d" % task_index])
+
         scaffold = tf.train.Scaffold(init_op=tf.global_variables_initializer(),local_init_op=tf.local_variables_initializer(),
                                      summary_op=all_summary)
         scaffold.global_step = global_step
