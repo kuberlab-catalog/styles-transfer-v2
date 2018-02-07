@@ -44,10 +44,11 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
 
     time_begin = time.time()
     print("Training begins @ %f" % time_begin)
-    sess_config = tf.ConfigProto(
-        allow_soft_placement=True,
-        log_device_placement=False,
-        device_filters=["/job:ps", "/job:worker/task:%d" % task_index])
+    #sess_config = tf.ConfigProto(
+    #    allow_soft_placement=True,
+    #    log_device_placement=False,
+    #    device_filters=["/job:ps", worker_device])
+    sess_config = tf.ConfigProto()
     with tf.device(
             tf.train.replica_device_setter(
                 worker_device=worker_device,
