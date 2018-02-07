@@ -52,8 +52,8 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
     with tf.device(
             tf.train.replica_device_setter(
                 worker_device=worker_device,
-                ps_device="/job:ps",
-                cluster=cluster)),tf.Session(server.target,config=sess_config) as sess:
+                #ps_device="/job:ps",
+                cluster=cluster)):
         dataset = styles_data(file_pattern,batch_size,limit,True)
         num_examples = dataset['size']
         num_samples = num_examples / batch_size
