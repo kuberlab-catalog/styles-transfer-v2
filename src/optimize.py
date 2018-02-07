@@ -54,7 +54,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
         num_samples = num_examples / batch_size
         num_global =  num_samples * epochs
         print("Number of iterations %d" % num_global)
-        global_step = tf.Variable(0, name="global_step", trainable=False)
+        global_step =tf.train.get_or_create_global_step()
         X_content = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
         X_pre = vgg.preprocess(X_content)
 
@@ -109,34 +109,26 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
 
         all_summary = tf.summary.merge_all()
 
-        init_op = tf.global_variables_initializer()
-
-        sv = tf.train.Supervisor(
-            is_chief=is_chief,
-            logdir=save_path,
-            init_op=init_op,
-            recovery_wait_secs=1,
-            summary_op=None,
-            global_step=global_step)
-
         sess_config = tf.ConfigProto(
             allow_soft_placement=True,
             log_device_placement=False,
             device_filters=["/job:ps", "/job:worker/task:%d" % task_index])
-
+        scaffold = tf.train.Scaffold(init_op=tf.global_variables_initializer(),local_init_op=tf.local_variables_initializer(),
+                                     summary_op=all_summary)
+        scaffold.global_step = global_step
         step = 0
-        with sv.managed_session(server.target, config=sess_config) as sess:
-            while step < num_global and not sv.should_stop():
+        with tf.train.MonitoredTrainingSession(master=server.target,
+                                               is_chief=is_chief,checkpoint_dir=save_path,
+                                               config=sess_config,
+                                               save_summaries_steps=10,
+                                               log_step_count_steps=10,
+                                               scaffold=scaffold) as sess:
+            while step < num_global and not sess.should_stop():
                 X_batch, _ = sess.run(dataset['batch'])
                 feed_dict = {
                     X_content:X_batch
                 }
                 _, step = sess.run([train_step, global_step], feed_dict=feed_dict)
-                if is_chief and local_step % 300 == 0:
-                    test_feed_dict = {
-                        X_content:Test,
-                    }
-                    sv.summary_computed(sess, sess.run(all_summary, feed_dict = test_feed_dict))
                 local_step += 1
                 print("Worker %d: training step %d done (global step: %d)" %
                       (task_index, local_step, step))
@@ -144,7 +136,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
             print("Training ends @ %f" % time_end)
             training_time = time_end - time_begin
             print("Training elapsed time: %f s" % training_time)
-            sv.request_stop()
+            sess.request_stop()
         return
 
 def _tensor_size(tensor):
