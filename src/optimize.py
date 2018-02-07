@@ -161,7 +161,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
     hvd.init()
     sess_config = tf.ConfigProto()
     sess_config.gpu_options.visible_device_list = str(hvd.local_rank())
-    with tf.Graph().as_default(), tf.device('/cpu'), tf.Session():
+    with tf.Graph().as_default(), tf.device('/cpu'), tf.Session(config=sess_config):
         style_image = tf.placeholder(tf.float32, shape=style_shape, name='style_image')
         style_image_pre = vgg.preprocess(style_image)
         net = vgg.net(vgg_path, style_image_pre)
