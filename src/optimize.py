@@ -158,6 +158,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
     style_shape = (1,) + style_target.shape
     print(style_shape)
     # precompute style features
+    hvd.init()
     sess_config = tf.ConfigProto()
     sess_config.gpu_options.visible_device_list = str(hvd.local_rank())
     with tf.Graph().as_default(), tf.device('/cpu'), tf.Session():
@@ -173,7 +174,6 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
 
     time_begin = time.time()
     print("Training begins @ %f" % time_begin)
-    hvd.init()
     hooks = [hvd.BroadcastGlobalVariablesHook(0)]
     checkpoint_dir = save_path
     is_chief = True
