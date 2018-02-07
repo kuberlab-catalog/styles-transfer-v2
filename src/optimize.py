@@ -247,8 +247,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
                                  summary_op=all_summary)
     scaffold.global_step = global_step
     step = 0
-    with tf.train.MonitoredTrainingSession(master=server.target,
-                                           is_chief=True,checkpoint_dir=checkpoint_dir,
+    with tf.train.MonitoredTrainingSession(checkpoint_dir=checkpoint_dir,
                                            config=sess_config,
                                            save_summaries_steps=log_step_count_steps,
                                            hooks=hooks,
