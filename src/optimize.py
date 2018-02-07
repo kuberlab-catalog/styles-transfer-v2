@@ -61,7 +61,8 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
         num_global =  num_samples * epochs
         print("Number of iterations %d" % num_global)
         global_step =tf.train.get_or_create_global_step()
-        X_content = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
+        X_content,_ = dataset['batch']
+        #X_content,_ = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
         X_pre = vgg.preprocess(X_content)
 
         # precompute content features
@@ -126,11 +127,11 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
                                                log_step_count_steps=10,
                                                scaffold=scaffold) as sess:
             while step < num_global and not sess.should_stop():
-                X_batch, _ = sess.run(dataset['batch'])
-                feed_dict = {
-                    X_content:X_batch
-                }
-                _, step = sess.run([train_step, global_step], feed_dict=feed_dict)
+                #X_batch, _ = sess.run(dataset['batch'])
+                #feed_dict = {
+                #    X_content:X_batch
+                #}
+                _, step = sess.run([train_step, global_step])
                 local_step += 1
                 print("Worker %d: training step %d done (global step: %d)" %
                       (task_index, local_step, step))
