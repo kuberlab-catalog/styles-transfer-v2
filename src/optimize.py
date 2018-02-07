@@ -187,7 +187,8 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
     num_global =  num_samples * epochs
     print("Number of iterations %d" % num_global)
     global_step =tf.train.get_or_create_global_step()
-    X_content = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
+    #X_content = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
+    X_content,_ = dataset['batch']
     X_pre = vgg.preprocess(X_content)
 
     # precompute content features
@@ -238,7 +239,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
 
     # overall loss
     train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss,global_step=global_step)
-
+    train_step = hvd.DistributedOptimizer(train_step)
     all_summary = tf.summary.merge_all()
 
 
@@ -247,18 +248,18 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
     scaffold.global_step = global_step
     step = 0
     with tf.train.MonitoredTrainingSession(master=server.target,
-                                           is_chief=is_chief,checkpoint_dir=checkpoint_dir,
+                                           is_chief=True,checkpoint_dir=checkpoint_dir,
                                            config=sess_config,
                                            save_summaries_steps=log_step_count_steps,
                                            hooks=hooks,
                                            log_step_count_steps=log_step_count_steps,
                                            scaffold=scaffold) as sess:
         while step < num_global and not sess.should_stop():
-            X_batch, _ = sess.run(dataset['batch'])
-            feed_dict = {
-                X_content:X_batch
-            }
-            _, step = sess.run([train_step, global_step], feed_dict=feed_dict)
+            #X_batch, _ = sess.run(dataset['batch'])
+            #feed_dict = {
+            #    X_content:X_batch
+            #}
+            _, step = sess.run([train_step, global_step])
             local_step += 1
             print("Worker %d: training step %d done (global step: %d)" %
                   (task_index, local_step, step))

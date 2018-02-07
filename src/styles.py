@@ -1,6 +1,6 @@
 from __future__ import print_function
 import sys, os, pdb
-from optimize import optimize
+from optimize import optimize, hororovod
 from argparse import ArgumentParser
 from utils import get_img, exists, list_files
 import tensorflow as tf
@@ -125,15 +125,20 @@ def main():
     ps_spec = options.ps_hosts.split(",")
     worker_spec = options.worker_hosts.split(",")
 
-    cluster = tf.train.ClusterSpec({
-        "ps": ps_spec,
-        "worker": worker_spec})
-    if options.job_name == "ps":
-        print("Start parameter server %d" % (options.task_index))
-        server = tf.train.Server(
+    cluster = None
+
+    if options.job_name == "mpi":
+        print('Use MPI')
+    else:
+        cluster = tf.train.ClusterSpec({
+            "ps": ps_spec,
+            "worker": worker_spec})
+        if options.job_name == "ps":
+            print("Start parameter server %d" % (options.task_index))
+            server = tf.train.Server(
             cluster, job_name=options.job_name, task_index=options.task_index)
-        server.join()
-        return
+            server.join()
+            return
 
     check_opts(options)
 
@@ -159,7 +164,10 @@ def main():
         options.vgg_path
     ]
 
-    optimize(*args, **kwargs)
+    if options.job_name == "mpi":
+        hororovod(*args, **kwargs)
+    else:
+        optimize(*args, **kwargs)
     print('Export model for serving:')
     if options.task_index == 0:
         export.export(options.checkpoint_dir,(1,512,512,3))
