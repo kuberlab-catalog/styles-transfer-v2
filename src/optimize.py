@@ -241,7 +241,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
     # overall loss
     train_step = tf.train.AdamOptimizer(learning_rate*hvd.size())
     train_step = hvd.DistributedOptimizer(train_step)
-    train_step = train_step.minimize(loss,global_step=global_step)
+    train_op = train_step.minimize(loss,global_step=global_step)
     all_summary = tf.summary.merge_all()
 
 
@@ -260,7 +260,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
             #feed_dict = {
             #    X_content:X_batch
             #}
-            _, step = sess.run([train_step, global_step])
+            _, step = sess.run([train_op, global_step])
             local_step += 1
             print("Worker %d: training step %d done (global step: %d)" %
                   (task_index, local_step, step))
