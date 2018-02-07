@@ -115,7 +115,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
         all_summary = tf.summary.merge_all()
 
 
-        scaffold = tf.train.Scaffold(init_op=tf.global_variables_initializer(),local_init_op=tf.local_variables_initializer(),
+        scaffold = tf.train.Scaffold(init_op=tf.global_variables_initializer(),
                                      summary_op=all_summary)
         scaffold.global_step = global_step
         step = 0
