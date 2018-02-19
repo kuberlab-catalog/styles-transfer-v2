@@ -149,6 +149,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
              tv_weight, vgg_path, epochs=2,
              batch_size=4, save_path='saver',
              learning_rate=1e-3,test_image=""):
+    logging.info("START")
     local_step = 0
     t_img = get_img(test_image,(256,256,3)).astype(np.float32)
     Test = np.zeros((batch_size,256,256,3), dtype=np.float32)
@@ -176,7 +177,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
             style_features[layer] = gram
 
     time_begin = time.time()
-    print("Training begins @ %f" % time_begin)
+    logging.info("Training begins @ %f", time_begin)
     hooks = [hvd.BroadcastGlobalVariablesHook(0)]
     checkpoint_dir = save_path
     is_chief = True
@@ -190,7 +191,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
     num_examples = dataset['size']
     num_samples = num_examples / batch_size
     num_global =  num_samples * epochs
-    print("Number of iterations %d" % num_global)
+    logging.info("Number of iterations %d" , num_global)
     global_step =tf.train.get_or_create_global_step()
     #X_content = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
     X_content,_ = dataset['batch']
@@ -267,12 +268,11 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
             #}
             _, step = sess.run([train_op, global_step])
             local_step += 1
-            print("Worker %d: training step %d done (global step: %d)" %
-                  (task_index, local_step, step))
+            logging.info("Worker %d: training step %d done (global step: %d)" ,task_index, local_step, step)
         time_end = time.time()
-        print("Training ends @ %f" % time_end)
+        logging.info("Training ends @ %f" , time_end)
         training_time = time_end - time_begin
-        print("Training elapsed time: %f s" % training_time)
+        logging.info("Training elapsed time: %f s" , training_time)
         sess.request_stop()
     return
 
