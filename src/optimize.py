@@ -5,6 +5,9 @@ import tensorflow as tf, numpy as np
 import transform
 from utils import get_img,styles_data
 import horovod.tensorflow as hvd
+from tensorflow import logging
+
+tf.logging.set_verbosity(tf.logging.INFO)
 
 STYLE_LAYERS = ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1')
 CONTENT_LAYER = 'relu4_2'
@@ -15,6 +18,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
              tv_weight, vgg_path, epochs=2,
              batch_size=4, save_path='saver',
              learning_rate=1e-3,test_image=""):
+    logging.info("START")
     local_step = 0
     t_img = get_img(test_image,(256,256,3)).astype(np.float32)
     Test = np.zeros((batch_size,256,256,3), dtype=np.float32)
@@ -25,7 +29,6 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
 
     batch_shape = (batch_size,256,256,3)
     style_shape = (1,) + style_target.shape
-    print(style_shape)
     is_chief = (task_index == 0)
     # precompute style features
     with tf.Graph().as_default(), tf.device('/cpu'), tf.Session():
@@ -44,7 +47,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
     worker_device = "/job:worker/task:%d" % (task_index)
 
     time_begin = time.time()
-    print("Training begins @ %f" % time_begin)
+    logging.info("Training begins @ %f",time_begin)
     #sess_config = tf.ConfigProto(
     #    allow_soft_placement=True,
     #    log_device_placement=False,
@@ -59,7 +62,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
         num_examples = dataset['size']
         num_samples = num_examples / batch_size
         num_global =  num_samples * epochs
-        print("Number of iterations %d" % num_global)
+        logging.info("Number of iterations %d",num_global)
         global_step =tf.train.get_or_create_global_step()
         X_content,_ = dataset['batch']
         #X_content,_ = tf.placeholder(tf.float32, shape=batch_shape, name="X_content")
@@ -133,12 +136,11 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
                 #}
                 _, step = sess.run([train_step, global_step])
                 local_step += 1
-                print("Worker %d: training step %d done (global step: %d)" %
-                      (task_index, local_step, step))
+                logging.info("Worker %d: training step %d done (global step: %d)", task_index, local_step, step)
             time_end = time.time()
-            print("Training ends @ %f" % time_end)
+            logging.info("Training ends @ %f" , time_end)
             training_time = time_end - time_begin
-            print("Training elapsed time: %f s" % training_time)
+            logging.info("Training elapsed time: %f s" , training_time)
             sess.request_stop()
         return
 
