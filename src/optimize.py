@@ -126,6 +126,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
         with tf.train.MonitoredTrainingSession(master=server.target,
                                                is_chief=is_chief,checkpoint_dir=save_path,
                                                config=sess_config,
+                                               save_checkpoint_secs=None,
                                                save_summaries_steps=10,
                                                log_step_count_steps=10,
                                                scaffold=scaffold) as sess:
@@ -256,6 +257,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
                                            config=sess_config,
                                            save_summaries_steps=log_step_count_steps,
                                            hooks=hooks,
+                                           save_checkpoint_secs=None,
                                            log_step_count_steps=log_step_count_steps,
                                            scaffold=scaffold) as sess:
         while step < num_global and not sess.should_stop():
