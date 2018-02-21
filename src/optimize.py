@@ -240,7 +240,7 @@ def single(cluster,task_index,limit,file_pattern, style_target, content_weight, 
         # overall loss
         train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss,global_step=global_step)
         step = 0
-
+        tf.train.start_queue_runners()
         while step < num_global:
 
                 #X_batch, _ = sess.run(dataset['batch'])
