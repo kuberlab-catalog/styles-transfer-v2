@@ -1,6 +1,6 @@
 from __future__ import print_function
 import sys, os, pdb
-from optimize import optimize, hororovod
+from optimize import optimize, hororovod, single
 from argparse import ArgumentParser
 from utils import get_img, exists, list_files
 import tensorflow as tf
@@ -167,7 +167,10 @@ def main():
     if options.job_name == "mpi":
         hororovod(*args, **kwargs)
     else:
-        optimize(*args, **kwargs)
+        if options.job_name == "single":
+            single(*args, **kwargs)
+        else:
+            optimize(*args, **kwargs)
     print('Export model for serving:')
     if options.task_index == 0:
         export.export(options.checkpoint_dir,(1,512,512,3))
