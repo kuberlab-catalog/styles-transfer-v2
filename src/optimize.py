@@ -160,7 +160,6 @@ def single(cluster,task_index,limit,file_pattern, style_target, content_weight, 
 
     batch_shape = (batch_size,256,256,3)
     style_shape = (1,) + style_target.shape
-    is_chief = (task_index == 0)
     # precompute style features
     with tf.Graph().as_default(), tf.device('/cpu'), tf.Session():
         style_image = tf.placeholder(tf.float32, shape=style_shape, name='style_image')
@@ -240,7 +239,8 @@ def single(cluster,task_index,limit,file_pattern, style_target, content_weight, 
         # overall loss
         train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss,global_step=global_step)
         step = 0
-        tf.train.start_queue_runners()
+        sess.run(tf.global_variables_initializer())
+        tf.train.start_queue_runners(sess=sess)
         while step < num_global:
 
                 #X_batch, _ = sess.run(dataset['batch'])
