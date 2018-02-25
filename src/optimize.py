@@ -145,7 +145,6 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
             logging.info("Training ends @ %f" , time_end)
             training_time = time_end - time_begin
             logging.info("Training elapsed time: %f s" , training_time)
-            sess.request_stop()
         return
 
 def single(cluster,task_index,limit,file_pattern, style_target, content_weight, style_weight,
