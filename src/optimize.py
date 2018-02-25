@@ -134,7 +134,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
                                                log_step_count_steps=10,
                                                scaffold=scaffold) as sess:
             while not sess.should_stop():
-                _, step = sess.run([train_op, global_step])
+                _, step = sess.run([train_step, global_step])
                 local_step += 1
                 logging.info("Worker %d: training step %d done (global step: %d)" ,task_index, local_step, step)
 
