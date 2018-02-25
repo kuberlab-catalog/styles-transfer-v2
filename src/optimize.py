@@ -123,21 +123,24 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
                                      summary_op=all_summary)
         scaffold.global_step = global_step
         step = 0
+        local_step = 0
+        def step_fn(step_context):
+            if step < num_global:
+                _, step = step_context.run_with_hooks([train_step, global_step])
+                local_step += 1
+                logging.info("Worker %d: training step %d done (global step: %d)", task_index, local_step, step)
+            else:
+                step_context.request_stop()
+            return step
         with tf.train.MonitoredTrainingSession(master=server.target,
                                                is_chief=is_chief,checkpoint_dir=save_path,
                                                config=sess_config,
-                                               save_checkpoint_secs=None,
+                                               save_checkpoint_secs=600,
                                                save_summaries_steps=100,
                                                log_step_count_steps=10,
                                                scaffold=scaffold) as sess:
-            while step < num_global and not sess.should_stop():
-                #X_batch, _ = sess.run(dataset['batch'])
-                #feed_dict = {
-                #    X_content:X_batch
-                #}
-                _, step = sess.run([train_step, global_step])
-                local_step += 1
-                logging.info("Worker %d: training step %d done (global step: %d)", task_index, local_step, step)
+            while not sess.should_stop():
+                sess.run_step_fn(step_fn)
             time_end = time.time()
             logging.info("Training ends @ %f" , time_end)
             training_time = time_end - time_begin
