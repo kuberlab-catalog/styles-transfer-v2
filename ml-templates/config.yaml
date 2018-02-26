@@ -64,6 +64,26 @@ spec:
       volumes:
       - name: lib
       - name: src
+  - name: run-task
+    resources:
+    - name: worker
+      replicas: 1
+      restartPolicy: Never
+      maxRestartCount: 0
+      allowFail: true
+      images:
+        gpu: tensorflow/tensorflow:1.2.0-gpu
+        cpu: tensorflow/tensorflow:1.2.0
+      command: python run_task.py -t train -e ENVVAR=VAL -o worker.replicas=1 -o worker.command="python styles.py --job_name=worker --style=style/udnie.jpg --train_dir=\$TRAINING_DIR/\$BUILD_ID --test=content/chicago.jpg  --content-weight=1.5e1  --batch-size=10 --train-path=\$DATA_DIR/train2014/*.jpg --vgg-path=\$DATA_DIR/imagenet-vgg-verydeep-19.mat --epochs=3 --style-weight=200 --limit_train=2000 --task_index=\$REPLICA_INDEX --ps_hosts=\$PS_NODES --worker_hosts=\$WORKER_NODES"
+      workdir: "$SRC_DIR"
+      resources:
+        requests:
+          cpu: 100m
+          memory: 1Gi
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+      default_volume_mapping: true
   uix:
   - name: jupyter
     displayName: Jupyter
