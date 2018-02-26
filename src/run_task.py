@@ -50,12 +50,6 @@ def get_parser():
         action='append',
     )
     parser.add_argument(
-        '--execution-parameter-override',
-        '-p',
-        metavar='<resource>.--param=value',
-        help='Replace specific execution parameter.',
-    )
-    parser.add_argument(
         '--build-override',
         '-b',
         action='store_true',
