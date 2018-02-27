@@ -112,6 +112,9 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
         tf.summary.scalar('style_loss', style_loss)
         tf.summary.scalar('content_loss', content_loss)
 
+        result = preds*255.0
+
+        tf.summary.image('result', result,max_outputs=1)
 
         # overall loss
         train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss,global_step=global_step)
