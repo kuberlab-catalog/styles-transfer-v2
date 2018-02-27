@@ -112,7 +112,9 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
         tf.summary.scalar('style_loss', style_loss)
         tf.summary.scalar('content_loss', content_loss)
 
+        result = preds*255.0
 
+        tf.summary.image('result', result,max_outputs=1)
         # overall loss
         train_step = tf.train.AdamOptimizer(learning_rate).minimize(loss,global_step=global_step)
 
@@ -129,7 +131,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
                                                hooks=[stopAt],
                                                is_chief=is_chief,checkpoint_dir=save_path,
                                                config=sess_config,
-                                               save_checkpoint_secs=600,
+                                               save_checkpoint_secs=None,
                                                save_summaries_steps=100,
                                                log_step_count_steps=10,
                                                scaffold=scaffold) as sess:
