@@ -169,11 +169,15 @@ def main():
     else:
         if options.job_name == "single":
             single(*args, **kwargs)
+        if options.job_name == "export":
+            print('Export model for serving:')
+            export.export2(options.checkpoint_dir)
+            return
         else:
             optimize(*args, **kwargs)
     print('Export model for serving:')
     if options.task_index == 0:
-        export.export(options.checkpoint_dir,(1,512,512,3))
+        export.export2(options.checkpoint_dir)
 
 if __name__ == '__main__':
     main()
