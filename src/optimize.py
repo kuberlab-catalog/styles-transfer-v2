@@ -132,7 +132,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
                                                hooks=[stopAt],
                                                is_chief=is_chief,checkpoint_dir=save_path,
                                                config=sess_config,
-                                               save_checkpoint_secs=None,
+                                               save_checkpoint_secs=600,
                                                save_summaries_steps=100,
                                                log_step_count_steps=10,
                                                scaffold=scaffold) as sess:
