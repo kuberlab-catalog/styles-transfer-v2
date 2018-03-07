@@ -177,7 +177,7 @@ def main():
             optimize(*args, **kwargs)
     print('Export model for serving:')
     if options.task_index == 0:
-        export.export2(options.checkpoint_dir)
+        export.export(options.checkpoint_dir,(1,512,512,3))
 
 if __name__ == '__main__':
     main()
