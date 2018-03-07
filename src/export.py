@@ -27,7 +27,7 @@ def export(checkpoint_dir,batch_shape):
 def export2(checkpoint_dir):
     with tf.Graph().as_default(),tf.Session() as sess:
         feature_spec = {'image': tf.FixedLenFeature(dtype=tf.string,shape=[1])}
-        features, _, inputs = tf.contrib.learn.utils.input_fn_utils.build_parsing_serving_input_fn(feature_spec)
+        features, _, inputs = tf.contrib.learn.utils.input_fn_utils.build_parsing_serving_input_fn(feature_spec)()
         image = tf.image.decode_image(features['image'], channels=3)
         image = tf.to_float(image, name='ToFloat')
         preds = transform.net(image/255.0)
