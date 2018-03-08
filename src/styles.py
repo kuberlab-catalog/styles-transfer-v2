@@ -29,6 +29,10 @@ def build_parser():
                         dest='checkpoint_dir', help='dir to save checkpoint in',
                         metavar='CHECKPOINT_DIR', required=False)
 
+    parser.add_argument('--export_path', type=str,
+                        dest='export_path', help='Dir to export model',
+                        metavar='EXPORT_PATH', required=False)
+
     parser.add_argument('--style', type=str,
                         dest='style', help='style image path',
                         metavar='STYLE', required=False)
@@ -171,7 +175,7 @@ def main():
             single(*args, **kwargs)
         if options.job_name == "export":
             print('Export model for serving:')
-            export.export2(options.checkpoint_dir)
+            export.export2(options.checkpoint_dir,options.export_path)
             return
         else:
             optimize(*args, **kwargs)
