@@ -26,10 +26,10 @@ def export(checkpoint_dir,batch_shape):
 
 def export2(checkpoint_dir,export_path):
     with tf.Graph().as_default(),tf.Session() as sess:
-        image = tf.placeholder(tf.string, shape=[],name='images')
-        image = tf.image.decode_image(image, channels=3)
-        image.set_shape([None,None,3])
-        images = tf.image.resize_image_with_crop_or_pad([image],512,512)
+        image = tf.placeholder(tf.string, shape=[],name='image')
+        image_array = tf.image.decode_image(image, channels=3)
+        image_array.set_shape([None,None,3])
+        images = tf.image.resize_image_with_crop_or_pad([image_array],512,512)
         images = tf.to_float(images, name='ToFloat')
 
         preds = transform.net(images/255.0)
@@ -42,7 +42,7 @@ def export2(checkpoint_dir,export_path):
         tensor_info_result = tf.saved_model.utils.build_tensor_info(result_image)
         prediction_signature = (
             tf.saved_model.signature_def_utils.build_signature_def(
-                inputs={'image': tensor_info_image},
+                inputs={'images': tensor_info_image},
                 outputs={'result': tensor_info_result},
                 method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME))
         saver = tf.train.Saver()
