@@ -47,7 +47,6 @@ def export2(checkpoint_dir,export_path):
                 method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME))
         saver = tf.train.Saver()
         saver.restore(sess,tf.train.latest_checkpoint(checkpoint_dir))
-        export_path = os.path.join(checkpoint_dir,"1")
         builder = tf.saved_model.builder.SavedModelBuilder(export_path)
         builder.add_meta_graph_and_variables(
             sess, [tf.saved_model.tag_constants.SERVING],
