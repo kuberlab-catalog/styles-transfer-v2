@@ -42,7 +42,7 @@ def export2(checkpoint_dir,export_path):
         tensor_info_result = tf.saved_model.utils.build_tensor_info(result_image)
         prediction_signature = (
             tf.saved_model.signature_def_utils.build_signature_def(
-                inputs={'images': tensor_info_image},
+                inputs={'image': tensor_info_image},
                 outputs={'result': tensor_info_result},
                 method_name=tf.saved_model.signature_constants.PREDICT_METHOD_NAME))
         saver = tf.train.Saver()
