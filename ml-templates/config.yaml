@@ -3,6 +3,7 @@ metadata:
   name: styles-transfer
 spec:
   package_manager: pip2
+  default_mount_path: "/notebooks"
   tasks:
   - name: train
     resources:
