@@ -3,8 +3,6 @@ metadata:
   name: styles-transfer
 spec:
   package_manager: pip2
-  packages:
-      manager: pip2
   tasks:
   - name: train
     resources:
