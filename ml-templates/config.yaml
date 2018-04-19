@@ -121,9 +121,9 @@ spec:
   - gitRepo:
       repository: https://github.com/kuberlab-catalog/styles-transfer-v2
     isLibDir: false
+    name: src
     subPath: "styles-transfer-v2/src"
   - isLibDir: true
-    mountPath: /workspace/lib
     name: lib
     clusterStorage: {{ .storage.value }}
   - isLibDir: false
