@@ -1,1 +1,13 @@
-storage: default
+storage:
+ value: default
+ wizard:
+   name: "Storage Configuration"
+   kind: cluster_storage
+
+dataset:
+ value: styles-transfer
+ version: '1.0.0'
+ workspace: 'kuberlab-demo'
+ wizard:
+   name: "Dataset version"
+   kind: dataset

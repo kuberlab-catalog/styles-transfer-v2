@@ -1,43 +1,25 @@
 kind: MLApp
 metadata:
-  name: styles-transfer-v2
-  labels:
-    test: test
+  name: styles-transfer
 spec:
   package_manager: pip2
   packages:
       manager: pip2
   tasks:
-  - name: prepare-data
-    resources:
-    - name: upload
-      replicas: 1
-      restartPolicy: Never
-      maxRestartCount: 1
-      allowFail: true
-      images:
-        cpu: busybox
-      command: wget http://www.vlfeat.org/matconvnet/models/beta16/imagenet-vgg-verydeep-19.mat;rm -rf train2014.zip;wget http://msvocds.blob.core.windows.net/coco2014/train2014.zip; unzip train2014.zip;rm -rf train2014.zip;echo DONE
-      workdir: "$DATA_DIR"
-      volumes:
-      - name: data
   - name: train
     resources:
     - name: worker
       replicas: 1
       restartPolicy: Never
       maxRestartCount: 0
-      allowFail: true
       images:
-        gpu: tensorflow/tensorflow:1.2.0-gpu
-        cpu: tensorflow/tensorflow:1.2.0
-      command: echo $PS_NODES; echo $WORKER_NODES; python
-      args: styles.py --job_name=worker --style=style/udnie.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=content/chicago.jpg  --content-weight=1.5e1  --batch-size=10 --train-path=$DATA_DIR/train2014/*.jpg --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat --epochs=3 --style-weight=200 --limit_train=2000 --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
+        gpu: kuberlab/tensorflow:gpu-27-1.5.0-full
+        cpu: kuberlab/tensorflow:cpu-27-1.5.0-full
+      command: python styles.py --job_name=worker --style=style/udnie.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=content/chicago.jpg  --content-weight=1.5e1  --batch-size=10 --train-path=$DATA_DIR/train2014/*.jpg --vgg-path=$DATA_DIR/imagenet-vgg-verydeep-19.mat --epochs=3 --style-weight=200 --limit_train=2000 --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
       workdir: "$SRC_DIR"
       resources:
         accelerators:
           gpu: 1
-          dedicated_gpu: true
         requests:
           cpu: 100m
           memory: 1Gi
@@ -45,51 +27,37 @@ spec:
           cpu: 1000m
           memory: 4Gi
       port: 2222
-      volumes:
-      - name: lib
-      - name: training
-      - name: src
-      - name: data
+      default_volume_mapping: true
     - name: ps
       replicas: 1
       restartPolicy: Never
       maxRestartCount: 0
+      is_permanent: true
       images:
-        gpu: tensorflow/tensorflow:1.2.0-gpu
-        cpu: tensorflow/tensorflow:1.2.0
-      command: echo $PS_NODES; echo $WORKER_NODES; python
-      args: styles.py --job_name=ps --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
-      workdir: "$SRC_DIR"
-      port: 2222
-      volumes:
-      - name: lib
-      - name: src
-  - name: run-task
-    resources:
-    - name: run
-      replicas: 1
-      restartPolicy: Never
-      maxRestartCount: 0
-      allowFail: true
-      images:
-        gpu: tensorflow/tensorflow:1.2.0-gpu
-        cpu: tensorflow/tensorflow:1.2.0
-      command: python run_task.py -t train -e ENVVAR=VAL -o worker.replicas=1 -o worker.command="python styles.py --job_name=worker --style=style/udnie.jpg --train_dir=\$TRAINING_DIR/\$BUILD_ID --test=content/chicago.jpg  --content-weight=1.5e1  --batch-size=10 --train-path=\$DATA_DIR/train2014/*.jpg --vgg-path=\$DATA_DIR/imagenet-vgg-verydeep-19.mat --epochs=3 --style-weight=200 --limit_train=2000 --task_index=\$REPLICA_INDEX --ps_hosts=\$PS_NODES --worker_hosts=\$WORKER_NODES"
+        gpu: kuberlab/tensorflow:gpu-27-1.5.0-full
+        cpu: kuberlab/tensorflow:cpu-27-1.5.0-full
+      command: python styles.py --job_name=ps --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
       workdir: "$SRC_DIR"
       resources:
+        accelerators:
+          gpu: 0
         requests:
           cpu: 100m
           memory: 1Gi
         limits:
-          cpu: 1000m
-          memory: 1Gi
-      default_volume_mapping: true
+          cpu: 4000m
+          memory: 4Gi
+      port: 2222
+      volumes:
+      - name: lib
+      - name: src
+      - name: training
   uix:
   - name: jupyter
     displayName: Jupyter
     images:
-      gpu: "kuberlab/mlboard-jupyter-gpu:latest"
-      cpu: "kuberlab/mlboard-jupyter:latest"
+      gpu: kuberlab/tensorflow:gpu-27-1.5.0-full
+      cpu: kuberlab/tensorflow:cpu-27-1.5.0-full
     resources:
       requests:
         cpu: 100m
@@ -102,15 +70,7 @@ spec:
       targetPort: 8888
       protocol: TCP
       name: http
-    volumes:
-    - name: lib
-      mountPath: /notebooks/lib
-    - name: src
-      mountPath: /notebooks/src
-    - name: training
-      mountPath: /notebooks/training
-    - name: data
-      mountPath: /notebooks/data
+    default_volume_mapping: true
   - name: tensorboard
     displayName: Tensorboard
     command: "tensorboard"
@@ -128,10 +88,10 @@ spec:
   - name: serving
     displayName: TF Serving
     images:
-      gpu: "kuberlab/tensorflow-serving:latest-gpu"
-      cpu: "kuberlab/tensorflow-serving:latest"
+      gpu: "kuberlab/tensorflow-serving:gpu-27-1.5.0"
+      cpu: "kuberlab/tensorflow-serving:cpu-27-1.5.0"
     command: tensorflow_model_server
-    args: "--port=9000 --model_name=$TASK_NAME --model_base_path=$TRAINING_DIR/$BUILD_ID"
+    args: "--port=9000 --model_name=tranform --model_base_path==$checkpoint_path"
     resources:
       accelerators:
         gpu: 1
@@ -142,6 +102,13 @@ spec:
       limits:
         cpu: 1000m
         memory: 1Gi
+    spec:
+      params:
+      - name: images
+        type: bytes
+      rawInput: true
+      model: tranform
+      outMimeType: "image/png"
     ports:
     - port: 9000
       targetPort: 9000
@@ -149,30 +116,21 @@ spec:
       name: http
     volumes:
     - name: training
-      mountPath: /training
   volumes:
   - isLibDir: false
-    isTrainLogDir: true
-    mountPath: /training
     name: training
-    clusterStorage: {{ .storage }}
-    subPath: training
+    clusterStorage: {{ .storage.value }}
   - gitRepo:
       repository: https://github.com/kuberlab-catalog/styles-transfer-v2
     isLibDir: false
-    isTrainLogDir: false
-    mountPath: /src
-    name: src
-    subPath: "/styles-transfer-v2/src"
+    subPath: "styles-transfer-v2/src"
   - isLibDir: true
-    isTrainLogDir: false
     mountPath: /workspace/lib
     name: lib
-    clusterStorage: {{ .storage }}
-    subPath: lib
+    clusterStorage: {{ .storage.value }}
   - isLibDir: false
-    isTrainLogDir: false
-    mountPath: /data
     name: data
-    clusterStorage: {{ .storage }}
-    subPath: /shared/data/styles-transfer
+    datasetFS:
+      workspace: {{ .dataset.workspace }}
+      dataset: {{ .dataset.value }}
+      version: {{ .dataset.version }}
