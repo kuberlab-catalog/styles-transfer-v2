@@ -178,7 +178,7 @@ def main():
             print('Export model for serving:')
             expath = os.path.join(options.export_path,"1")
             export.export2(options.checkpoint_dir,expath)
-            client.update_task_info({'model_path': expath},{'checkpoint_path': options.export_path})
+            client.update_task_info({'model_path': expath,'checkpoint_path': options.export_path})
             return
         else:
             optimize(*args, **kwargs)
