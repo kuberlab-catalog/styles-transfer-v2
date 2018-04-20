@@ -177,7 +177,7 @@ def main():
         if options.job_name == "export":
             print('Export model for serving:')
             expath = os.path.join(options.export_path,"1")
-            export.export2(options.checkpoint_dir,options.expath)
+            export.export2(options.checkpoint_dir,expath)
             client.update_task_info({'model_path': expath},{'checkpoint_path': options.export_path})
             return
         else:
