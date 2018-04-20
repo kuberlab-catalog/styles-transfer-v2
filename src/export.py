@@ -32,7 +32,7 @@ def export2(checkpoint_dir,export_path):
         images = tf.image.resize_image_with_crop_or_pad([image_array],512,512)
         images = tf.to_float(images, name='ToFloat')
 
-        preds = transform.net(images/255.0)
+        preds = images/255.0
 
         result = preds*255.0
         result = tf.cast(result, tf.uint8)
