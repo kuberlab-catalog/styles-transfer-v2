@@ -89,8 +89,7 @@ spec:
     images:
       gpu: "kuberlab/tensorflow-serving:gpu-27-1.5.0"
       cpu: "kuberlab/tensorflow-serving:cpu-27-1.5.0"
-    command: tensorflow_model_server
-    args: "--port=9000 --model_name=tranform --model_base_path==$checkpoint_path"
+    command: "tensorflow_model_server --port=9000 --model_name=transform --model_base_path=$checkpoint_path"
     resources:
       accelerators:
         gpu: 1
@@ -106,7 +105,7 @@ spec:
       - name: images
         type: bytes
       rawInput: true
-      model: tranform
+      model: transform
       outMimeType: "image/png"
     ports:
     - port: 9000

@@ -19,7 +19,7 @@ def export(checkpoint_dir,batch_shape):
         builder.add_meta_graph_and_variables(
             sess, [tf.saved_model.tag_constants.SERVING],
             signature_def_map={
-                'predict_images':
+                tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
                     prediction_signature
             })
         builder.save()

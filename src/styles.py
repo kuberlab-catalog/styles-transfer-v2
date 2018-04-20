@@ -168,7 +168,7 @@ def main():
         options.tv_weight,
         options.vgg_path
     ]
-    client.update_task_info({'checkpoint_path': options.checkpoint_dir,'model_path': options.checkpoint_dir})
+    client.update_task_info({'checkpoint_path': options.checkpoint_dir})
     if options.job_name == "mpi":
         hororovod(*args, **kwargs)
     else:
@@ -183,6 +183,7 @@ def main():
     print('Export model for serving:')
     if options.task_index == 0:
         export.export2(options.checkpoint_dir,os.path.join(options.checkpoint_dir,"1"))
+        client.update_task_info({'model_path': os.path.join(options.checkpoint_dir,"1")})
 
 if __name__ == '__main__':
     main()
