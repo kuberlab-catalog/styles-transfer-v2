@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from utils import get_img, exists, list_files
 import tensorflow as tf
 import export
+from mlboardclient.api import client
 
 CONTENT_WEIGHT = 7.5e0
 STYLE_WEIGHT = 1e2
@@ -167,7 +168,7 @@ def main():
         options.tv_weight,
         options.vgg_path
     ]
-
+    client.update_task_info({'checkpoint_path': options.checkpoint_dir,'model_path': options.checkpoint_dir})
     if options.job_name == "mpi":
         hororovod(*args, **kwargs)
     else:
@@ -181,7 +182,7 @@ def main():
             optimize(*args, **kwargs)
     print('Export model for serving:')
     if options.task_index == 0:
-        export.export(options.checkpoint_dir,(1,512,512,3))
+        export.export2(options.checkpoint_dir,os.path.join(options.checkpoint_dir,"1"))
 
 if __name__ == '__main__':
     main()
