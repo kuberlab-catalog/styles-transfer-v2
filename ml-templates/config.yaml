@@ -3,8 +3,7 @@ metadata:
   name: styles-transfer
 spec:
   package_manager: pip2
-  packages:
-      manager: pip2
+  default_mount_path: "/notebooks"
   tasks:
   - name: train
     resources:
@@ -123,9 +122,9 @@ spec:
   - gitRepo:
       repository: https://github.com/kuberlab-catalog/styles-transfer-v2
     isLibDir: false
+    name: src
     subPath: "styles-transfer-v2/src"
   - isLibDir: true
-    mountPath: /workspace/lib
     name: lib
     clusterStorage: {{ .storage.value }}
   - isLibDir: false
