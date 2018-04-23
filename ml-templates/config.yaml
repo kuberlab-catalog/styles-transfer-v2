@@ -72,8 +72,7 @@ spec:
     default_volume_mapping: true
   - name: tensorboard
     displayName: Tensorboard
-    command: "tensorboard"
-    args: "--logdir=$TRAINING_DIR"
+    command: "tensorboard --logdir=$TRAINING_DIR"
     images:
       cpu: "kuberlab/tensorflow:cpu-27-1.5.0-base"
     ports:
