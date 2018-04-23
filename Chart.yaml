@@ -1,12 +1,12 @@
 Description: Style Tranfer demo
 Engine: gotpl
 Home: http://kuberlab.com
-Icon: https://storage.googleapis.com/kuberlab/static/favicon.ico
+Icon: https://storage.googleapis.com/kuberlab-images/udnie.jpg
 Keywords:
-- kubernets
+- kuberlab
 - tensorflow
 - style
-- demo
+- tutorial
 Maintainers:
 - Email: agunin@kuberlab.com
   Name: Gunin Alexander
