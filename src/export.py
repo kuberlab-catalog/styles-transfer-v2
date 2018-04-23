@@ -29,7 +29,7 @@ def export2(checkpoint_dir,export_path):
         image = tf.placeholder(tf.string, shape=[],name='images')
         image_array = tf.image.decode_image(image, channels=3)
         image_array.set_shape([None,None,3])
-        images = tf.image.resize_image_with_crop_or_pad([image_array],512,512)
+        images = tf.image.resize_area([image_array],[512,512])
         images = tf.to_float(images, name='ToFloat')
         images = tf.reshape(images, (1,512,512,3))
         preds = transform.net(images/255.0)
