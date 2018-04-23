@@ -35,7 +35,7 @@ def export2(checkpoint_dir,export_path):
         preds = transform.net(images/255.0)
 
         result = preds*255.0
-        result = tf.clip_by_value(result,0,255)
+        result = tf.clip_by_value(result,0,1)
         result = tf.cast(result, tf.uint8)
         result_image = tf.image.encode_png(result[0])
 
