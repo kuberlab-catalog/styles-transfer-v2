@@ -101,7 +101,7 @@ spec:
     spec:
       params:
       - name: images
-        type: bytes
+        type: byte
       rawInput: true
       model: transform
       outFilter:
