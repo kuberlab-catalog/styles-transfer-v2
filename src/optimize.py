@@ -54,8 +54,8 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
     #    log_device_placement=False,
     #    device_filters=["/job:ps", worker_device])
     sess_config = tf.ConfigProto()
-    sess_config.intra_op_parallelism_threads = 4
-    sess_config.inter_op_parallelism_threads = 1
+    #sess_config.intra_op_parallelism_threads = 4
+    #sess_config.inter_op_parallelism_threads = 1
     with tf.device(
             tf.train.replica_device_setter(
                 worker_device=worker_device,
