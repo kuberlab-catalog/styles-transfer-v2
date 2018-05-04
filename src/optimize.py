@@ -31,6 +31,7 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
     style_shape = (1,) + style_target.shape
     is_chief = (task_index == 0)
     # precompute style features
+
     with tf.Graph().as_default(), tf.device('/cpu'), tf.Session():
         style_image = tf.placeholder(tf.float32, shape=style_shape, name='style_image')
         style_image_pre = vgg.preprocess(style_image)
@@ -53,6 +54,8 @@ def optimize(cluster,task_index,limit,file_pattern, style_target, content_weight
     #    log_device_placement=False,
     #    device_filters=["/job:ps", worker_device])
     sess_config = tf.ConfigProto()
+    sess_config.intra_op_parallelism_threads = 64
+    sess_config.inter_op_parallelism_threads = 1
     with tf.device(
             tf.train.replica_device_setter(
                 worker_device=worker_device,
