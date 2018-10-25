@@ -44,7 +44,7 @@
   label: Training batch size
 
 - name: epochs
-  value: 10
+  value: 1
   type: int
   label: Number of epoch to train
 
