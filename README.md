@@ -36,9 +36,7 @@ Example of a trained model served as microservice application.
 Execution command:
 
 ```
-tensorflow_model_server --port=9000 --model_name=transform --model_base_path=$checkpoint_path
+kuberlab-serving --port=9000 --driver tensorflow --model-path=$model_path
 ```
 Argumets:
-
-* `model_name` - Name of the model. Use provided enviroment variable to set this parameter.
-* `model_base_path` - Use provided enviroment variable to set this parameter.
+* `model-path` - Use provided enviroment variable to set this parameter. $model_path for serving from project and $MODEL_DIR for serving from catalog
