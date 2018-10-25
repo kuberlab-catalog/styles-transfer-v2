@@ -45,7 +45,8 @@ def styles_data(file_pattern,batch_size,limit, shuffle):
     files = glob(file_pattern)
     if limit >0 :
         print("Limit train set %d" % limit)
-        files = files[0:limit]
+        if limit<len(files):
+            files = files[0:limit]
     filename_queue = tf.train.string_input_producer(
         files,
         shuffle=shuffle,
