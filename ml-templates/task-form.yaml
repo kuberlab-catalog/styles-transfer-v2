@@ -48,7 +48,7 @@
   type: int
   label: Number of epoch to train
 
-- name: limit_train
+- name: limit_train(0 no limits)
   value: 2000
   type: int
   label: Limit mumber of examples for training testing
