@@ -103,10 +103,9 @@ spec:
       - name: images
         type: byte
       rawInput: true
-      model: transform
+      model: any
       outFilter:
         - result
-      signature: transform
       outMimeType: "image/png"
     ports:
     - port: 9000
