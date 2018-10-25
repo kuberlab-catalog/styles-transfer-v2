@@ -7,7 +7,7 @@ resources:
   images:
     gpu: "kuberlab/tensorflow:gpu-27-1.5.0-full"
     cpu: "kuberlab/tensorflow:cpu-27-1.5.0-full"
-  command: python styles.py --job_name=worker --style=style/{{ .style }}.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=content/{{ .test_picture }}.jpg  --content-weight={{ .content_weight }}  --batch-size= {{ .batch_size }} --train-path={{ .train_path }} --vgg-path={{ .vgg_path }} --epochs={{ .epochs }} --style-weight={{ .style_weight }} --limit_train={{ .limit_train }} --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
+  command: python styles.py --job_name=worker --style=style/{{ .style }}.jpg --train_dir=$TRAINING_DIR/$BUILD_ID --test=content/{{ .test_picture }}.jpg  --content-weight={{ .content_weight }}  --batch-size={{ .batch_size }} --train-path={{ .train_path }} --vgg-path={{ .vgg_path }} --epochs={{ .epochs }} --style-weight={{ .style_weight }} --limit_train={{ .limit_train }} --task_index=$REPLICA_INDEX --ps_hosts=$PS_NODES --worker_hosts=$WORKER_NODES
   workdir: "$SRC_DIR"
   resources:
     {{- if .use_gpu }}
