@@ -86,9 +86,9 @@ spec:
   - name: serving
     displayName: TF Serving
     images:
-      gpu: "kuberlab/tensorflow-serving:gpu-27-1.5.0"
-      cpu: "kuberlab/tensorflow-serving:cpu-27-1.5.0"
-    command: "tensorflow_model_server --port=9000 --model_name=transform --model_base_path=$checkpoint_path"
+      gpu: "kuberlab/serving:latest-gpu"
+      cpu: "kuberlab/serving:latest"
+    command: "kuberlab-serving --port=9000 --driver tensorflow --model-path=$checkpoint_path"
     resources:
       accelerators:
         gpu: 0
