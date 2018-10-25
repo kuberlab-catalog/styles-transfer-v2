@@ -13,20 +13,20 @@
   type: select
   value: udnie
   options:
-  - udnie
-  - rain_princess
-  - la_muse
-  - the_scream
-  - the_shipwreck_of_the_minotaur
-  - wave
+    - udnie
+    - rain_princess
+    - la_muse
+    - the_scream
+    - the_shipwreck_of_the_minotaur
+    - wave
 
 - name: test_picture
   label: Test image to evalute results in the tensorboard
   type: select
   value: chicago
   options:
-  - chicago
-  - stata
+    - chicago
+    - stata
 
 - name: train_path
   value: $DATA_DIR/train2014/*.jpg
@@ -50,7 +50,7 @@
 
 - name: limit_train
   value: 2000
-  type: 1
+  type: int
   label: Limit mumber of examples for training testing
 
 - name: style_weight
