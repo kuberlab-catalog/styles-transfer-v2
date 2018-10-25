@@ -1,7 +1,7 @@
 name: train
 resources:
 - name: worker
-  replicas: 1
+  replicas: {{ .replicas }}
   restartPolicy: Never
   maxRestartCount: 0
   images:
