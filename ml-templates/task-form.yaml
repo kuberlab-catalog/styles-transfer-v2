@@ -1,0 +1,64 @@
+- name: use_gpu
+  label: Use gpu for training
+  value: true
+  type: boolean
+
+- name: replicas
+  label: Number of replicas for distributed training
+  value: 1
+  type: int
+
+- name: style
+  label: Style for training
+  type: select
+  value: udnie
+  options:
+    - udnie
+    - rain_princess
+    - la_muse
+    - the_scream
+    - the_shipwreck_of_the_minotaur
+    - wave
+
+- name: test_picture
+  label: Test image to evalute results in the tensorboard
+  type: select
+  value: chicago
+  options:
+    - chicago
+    - stata
+
+- name: train_path
+  value: $DATA_DIR/train2014/*.jpg
+  type: string
+  label: Training file pattern
+
+- name: vgg_path
+  value: $DATA_DIR/imagenet-vgg-verydeep-19.mat
+  type: string
+  label: Model that will be used for tranfer learning
+
+- name: batch_size
+  value: 10
+  type: int
+  label: Training batch size
+
+- name: epochs
+  value: 10
+  type: int
+  label: Number of epoch to train
+
+- name: limit_train
+  value: 2000
+  type: 1
+  label: Limit mumber of examples for training testing
+
+- name: style_weight
+  value: 200
+  type: int
+  label: Styles transfer weight
+
+- name: content_weight
+  value: 15
+  type: float
+  label: Original Content weight
