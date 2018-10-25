@@ -51,7 +51,7 @@ def export2(checkpoint_dir,export_path):
         builder.add_meta_graph_and_variables(
             sess, [tf.saved_model.tag_constants.SERVING],
             signature_def_map={
-                'transform':
+                tf.saved_model.signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY:
                     prediction_signature
             })
         builder.save()
