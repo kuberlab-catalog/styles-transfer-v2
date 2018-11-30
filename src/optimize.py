@@ -4,7 +4,6 @@ import vgg, pdb, time
 import tensorflow as tf, numpy as np
 import transform
 from utils import get_img,styles_data
-import horovod.tensorflow as hvd
 from tensorflow import logging
 
 tf.logging.set_verbosity(tf.logging.INFO)
@@ -267,6 +266,7 @@ def hororovod(cluster,task_index,limit,file_pattern, style_target, content_weigh
              tv_weight, vgg_path, epochs=2,
              batch_size=4, save_path='saver',
              learning_rate=1e-3,test_image=""):
+    import horovod.tensorflow as hvd
     logging.info("START")
     local_step = 0
     t_img = get_img(test_image,(256,256,3)).astype(np.float32)
