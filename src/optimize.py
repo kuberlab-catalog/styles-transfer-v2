@@ -184,6 +184,8 @@ def single(cluster,task_index,limit,file_pattern, style_target, content_weight, 
     #    log_device_placement=False,
     #    device_filters=["/job:ps", worker_device])
     sess_config = tf.ConfigProto()
+    tc = 0
+    duration = 0
     with tf.Session() as sess:
         dataset = styles_data(file_pattern,batch_size,limit,True)
         num_examples = dataset['size']
@@ -254,7 +256,14 @@ def single(cluster,task_index,limit,file_pattern, style_target, content_weight, 
             start_time = time.time()
             _, step = sess.run([train_step, global_step])
             local_step += 1
-            logging.info("Worker %d: training step %d done (global step: %d) %.2f", task_index, local_step, step,time.time() - start_time)
+            tc += 1
+            tduration = time.time() - start_time
+            duration + = tduration
+            if tc==10:
+              logging.info("Global steps/sec %.2f",tc/duration)
+              tc = 0
+              duration = 0
+            logging.info("Worker %d: training step %d done (global step: %d) %.2f", task_index, local_step, step,tduration)
 
         time_end = time.time()
         logging.info("Training ends @ %f" , time_end)
