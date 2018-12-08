@@ -258,7 +258,7 @@ def single(cluster,task_index,limit,file_pattern, style_target, content_weight, 
             local_step += 1
             tc += 1
             tduration = time.time() - start_time
-            duration + = tduration
+            duration += tduration
             if tc==10:
               logging.info("Global steps/sec %.2f",tc/duration)
               tc = 0
